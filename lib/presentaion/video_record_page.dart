@@ -42,7 +42,7 @@ class _VideoRecordPageState extends State<VideoRecordPage>
   final videoState = VideoState.initial.obs;
   CameraBloc? cameraBloc;
 
-  void onPostButtonCLicked() {}
+  void onPostButtonCLicked() => cameraBloc?.add(StopVideoRecorder());
 
   void onRecordClicked() => cameraBloc?.add(ToggleVideoRecorder());
 
@@ -88,6 +88,7 @@ class _VideoRecordPageState extends State<VideoRecordPage>
 
           if (state is VideoRecorderStopped) {
             debugPrint('stopped');
+            return;
           }
 
           if (state is CameraFound) {
