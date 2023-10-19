@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Required for recording video for posts</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Required for recording audio for video</string>
 </dict>
 </plist>
