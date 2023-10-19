@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 import 'consts.dart';
 import 'widgets/app_buttom_navigation_bar.dart';
@@ -18,59 +19,82 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class VideoPlayerPage extends StatelessWidget {
+class VideoPlayerPage extends StatefulWidget {
   const VideoPlayerPage({
     super.key,
   });
 
   @override
+  State<VideoPlayerPage> createState() => _VideoPlayerPageState();
+}
+
+class _VideoPlayerPageState extends State<VideoPlayerPage> {
+  late final VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    var url =
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
+    _controller = VideoPlayerController.networkUrl(Uri.parse(url))
+      ..initialize().then((value) => setState(() {}))
+      ..setLooping(true)
+      ..play();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            title: const Text('Flyin'),
-            pinned: true,
-            bottom: SearchBarWithFilter(
-              preferredSize: const Size(150, 20),
-            ),
-            actions: [
-              IconButton(
-                onPressed: _onNotificationActionClicked,
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  size: 18,
-                ),
-              )
-            ],
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: MySliverPersistentVideoPlayer(),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              const VideoInfo(
-                category: 'Sports',
-                userFullName: 'A User',
-                relativeTime: '1 days ago',
-                videoTitle: 'Title 1',
-              ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'Comments',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+      body: FutureBuilder<void>(
+          future: null,
+          builder: (context, snapshot) {
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  title: const Text('Flyin'),
+                  pinned: true,
+                  bottom: SearchBarWithFilter(
+                    preferredSize: const Size(150, 20),
                   ),
+                  actions: [
+                    IconButton(
+                      onPressed: _onNotificationActionClicked,
+                      icon: const Icon(
+                        Icons.notifications_outlined,
+                        size: 18,
+                      ),
+                    )
+                  ],
                 ),
-              ),
-            ]),
-          ),
-          const SliverFillRemaining()
-        ],
-      ),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate:
+                      MySliverPersistentVideoPlayer(controller: _controller),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    const VideoInfo(
+                      category: 'Sports',
+                      userFullName: 'A User',
+                      relativeTime: '1 days ago',
+                      videoTitle: 'Title 1',
+                    ),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          'Comments',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+                const SliverFillRemaining()
+              ],
+            );
+          }),
       bottomNavigationBar: AppButtomNavigationBar(
         onExploreClicked: () {},
         onVideoAddClicked: () {},
@@ -152,12 +176,13 @@ class VideoInfo extends StatelessWidget {
 }
 
 class MySliverPersistentVideoPlayer extends SliverPersistentHeaderDelegate {
+  final VideoPlayerController controller;
+
+  MySliverPersistentVideoPlayer({required this.controller});
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.black,
-    );
+    return VideoPlayer(controller);
   }
 
   @override
