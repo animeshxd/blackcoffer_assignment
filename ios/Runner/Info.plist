@@ -49,5 +49,10 @@
 	<string>Required for recording video for posts</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Required for recording audio for video</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
 </dict>
 </plist>
