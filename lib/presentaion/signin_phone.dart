@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'consts.dart';
+import 'widgets/country_and_phone_number_field.dart';
 import 'widgets/logo.dart';
 import 'widgets/rounded_elevated_button.dart';
-
-import 'widgets/country_and_phone_number_field.dart';
 
 void main() => runApp(const MyApp());
 

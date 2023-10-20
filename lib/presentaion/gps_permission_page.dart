@@ -1,6 +1,7 @@
-import '../application/location_cubit/locations_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../application/location_cubit/locations_cubit.dart';
 import 'consts.dart';
 import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';

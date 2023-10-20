@@ -1,5 +1,5 @@
-import 'package:blackcoffer_assignment/application/location_cubit/locations_cubit.dart';
-import 'package:blackcoffer_assignment/presentaion/gps_permission_page.dart';
+import '../application/location_cubit/locations_cubit.dart';
+import 'gps_permission_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/state_manager.dart';
