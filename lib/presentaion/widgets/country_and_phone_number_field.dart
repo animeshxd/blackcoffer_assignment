@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/state_manager.dart';
 import 'package:intl_phone_field/countries.dart';
 import 'country_search_delegate.dart';
 
@@ -27,15 +28,15 @@ class CountryAndPhoneNumberFieldState
     extends State<CountryAndPhoneNumberField> {
   final _numberController = TextEditingController();
 
-  late var _selectedCountry = _countries[widget.country]!;
-  late String? _errorText = widget.errorText;
+  late final _selectedCountry = _countries[widget.country]!.obs;
+  late final _errorText = RxnString(widget.errorText);
   @override
   void dispose() {
     super.dispose();
     _numberController.dispose();
   }
 
-  late bool isError = widget.errorText != null;
+  late final isError = RxBool(widget.errorText != null);
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.titleMedium;
@@ -47,95 +48,99 @@ class CountryAndPhoneNumberFieldState
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: isError
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                InkWell(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(_selectedCountry.flag),
-                      Text(' +', style: textInputStyle),
-                      Text(
-                        _selectedCountry.fullCountryCode,
-                        style: textInputStyle,
-                      ),
-                      const Icon(Icons.keyboard_arrow_down, size: 15)
-                    ],
-                  ),
-                  onTap: () async {
-                    final country = await showSearch<Country>(
-                      context: context,
-                      delegate: CountrySearchDelegate(),
-                    );
-                    setState(() {
-                      _selectedCountry = country ?? _selectedCountry;
-                    });
-                  },
+          Obx(() {
+            return Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isError.isTrue
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.primary,
+                  width: 2,
                 ),
-                Expanded(flex: 0, child: Text('  ', style: textInputStyle)),
-                Expanded(
-                  flex: 7,
-                  child: TextField(
-                    controller: _numberController,
-                    decoration: InputDecoration(
-                      hintText: ' Enter Phone Number',
-                      hintStyle: textInputStyle,
-                      border: InputBorder.none,
-                      counterText: '',
-                      isCollapsed: true,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  InkWell(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(_selectedCountry.value.flag),
+                        Text(' +', style: textInputStyle),
+                        Text(
+                          _selectedCountry.value.fullCountryCode,
+                          style: textInputStyle,
+                        ),
+                        const Icon(Icons.keyboard_arrow_down, size: 15)
+                      ],
                     ),
-                    cursorColor: widget.errorText == null ? null : Colors.red,
-                    maxLength: _selectedCountry.maxLength,
-                    style: textInputStyle,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    keyboardType: TextInputType.phone,
-                    onChanged: (value) {
-                      var phoneNumber = PhoneNumber(
-                        countryCode: _selectedCountry.fullCountryCode,
-                        number: value,
+                    onTap: () async {
+                      final country = await showSearch<Country>(
+                        context: context,
+                        delegate: CountrySearchDelegate(),
                       );
-                      setState(() {
-                        isError = false;
-                        _errorText = null;
-                      });
-                      widget.onChanged?.call(phoneNumber);
 
-                      if (value.length > _selectedCountry.maxLength ||
-                          value.length < _selectedCountry.minLength) {
-                        setState(() {
-                          isError = true;
-                          _errorText = 'Invalid phone number';
-                        });
-                      } else {
-                        widget.onValidated(phoneNumber);
-                      }
+                      _selectedCountry.value =
+                          country ?? _selectedCountry.value;
                     },
                   ),
-                )
-              ],
-            ),
-          ),
-          if (isError)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                _errorText!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                  Expanded(flex: 0, child: Text('  ', style: textInputStyle)),
+                  Expanded(
+                    flex: 7,
+                    child: TextField(
+                      controller: _numberController,
+                      decoration: InputDecoration(
+                        hintText: ' Enter Phone Number',
+                        hintStyle: textInputStyle,
+                        border: InputBorder.none,
+                        counterText: '',
+                        isCollapsed: true,
+                      ),
+                      cursorColor: widget.errorText == null ? null : Colors.red,
+                      maxLength: _selectedCountry.value.maxLength,
+                      style: textInputStyle,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      keyboardType: TextInputType.phone,
+                      onChanged: (value) {
+                        var phoneNumber = PhoneNumber(
+                          countryCode: _selectedCountry.value.fullCountryCode,
+                          number: value,
+                        );
+
+                        isError.value = false;
+                        _errorText.value = null;
+
+                        widget.onChanged?.call(phoneNumber);
+
+                        if (value.length > _selectedCountry.value.maxLength ||
+                            value.length < _selectedCountry.value.minLength) {
+                          isError.value = true;
+                          _errorText.value = 'Invalid phone number';
+                        } else {
+                          widget.onValidated(phoneNumber);
+                        }
+                      },
+                    ),
+                  )
+                ],
               ),
-            )
+            );
+          }),
+          Obx(() {
+            if (isError.value) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  _errorText.value!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          })
         ],
       ),
     );
