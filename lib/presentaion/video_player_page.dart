@@ -34,9 +34,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-    var url =
-        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
-    _controller = VideoPlayerController.networkUrl(Uri.parse(url))
+    var url = 'assets/videos/video.mp4';
+    _controller = VideoPlayerController.asset(
+      url,
+    )
       ..initialize().then((value) => setState(() {}))
       ..setLooping(true)
       ..play();
@@ -122,6 +123,7 @@ class VideoInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 10),
         Text(
           videoTitle,
           style: Theme.of(context)
@@ -182,7 +184,15 @@ class MySliverPersistentVideoPlayer extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return VideoPlayer(controller);
+    return Container(
+      color: mainThemeData.colorScheme.background,
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: controller.value.aspectRatio,
+          child: VideoPlayer(controller),
+        ),
+      ),
+    );
   }
 
   @override
