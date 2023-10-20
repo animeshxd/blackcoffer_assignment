@@ -30,34 +30,39 @@ class GPSPermissionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MainAppBody(
-      body: BlocConsumer<LocationsCubit, LocationsState>(
-        builder: (context, state) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(25),
-              child: RoundedElevatedTextButton(
-                text: 'Allow GPS Permisson',
-                onPressed: () => onAllowGPSPermissionRequested(context),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: MainAppBody(
+        body: BlocConsumer<LocationsCubit, LocationsState>(
+          builder: (context, state) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(25),
+                child: RoundedElevatedTextButton(
+                  text: 'Allow GPS Permisson',
+                  onPressed: () => onAllowGPSPermissionRequested(context),
+                ),
               ),
-            ),
-          );
-        },
-        listener: (context, state) {
-          var messenger = ScaffoldMessenger.maybeOf(context);
-          if (state is LocationGetSuccess) {
-            //TODO:
-          }
-          var snackbarContent = switch (state) {
-            LocationPermanentlyDisabled() => 'Unable to determine location',
-            LocationAskPermission() => 'Please Allow GPS Permission',
-            LocationAskEnableService() => 'Please enable location service',
-            LocationGetSuccess(position: var position) => 'Location $position',
-            LocationsProcessing() => 'Checking location',
-            _ => 'Unknown location'
-          };
-          messenger?.showSnackBar(SnackBar(content: Text(snackbarContent)));
-        },
+            );
+          },
+          listener: (context, state) {
+            var messenger = ScaffoldMessenger.maybeOf(context);
+            if (state is LocationGetSuccess) {
+              //TODO:
+              Navigator.of(context).pop(state.position);
+            }
+            var snackbarContent = switch (state) {
+              LocationPermanentlyDisabled() => 'Unable to determine location',
+              LocationAskPermission() => 'Please Allow GPS Permission',
+              LocationAskEnableService() => 'Please enable location service',
+              LocationGetSuccess(position: var position) =>
+                'Location $position',
+              LocationsProcessing() => 'Checking location',
+              _ => 'Unknown location'
+            };
+            messenger?.showSnackBar(SnackBar(content: Text(snackbarContent)));
+          },
+        ),
       ),
     );
   }
