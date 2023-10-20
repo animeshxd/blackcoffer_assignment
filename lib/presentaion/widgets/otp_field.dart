@@ -1,17 +1,20 @@
+import 'package:blackcoffer_assignment/presentaion/consts.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
 class OtpField extends StatefulWidget {
   const OtpField({
-    Key? key,
+    super.key,
     this.lenght = 4,
     this.onCompleted,
     this.controller,
-  }) : super(key: key);
+    this.onChanged,
+  });
 
   final int lenght;
   final TextEditingController? controller;
   final void Function(String value)? onCompleted;
+  final void Function(String value)? onChanged;
 
   @override
   State<OtpField> createState() => _OtpFieldState();
@@ -33,7 +36,7 @@ class _OtpFieldState extends State<OtpField> {
   Widget build(BuildContext context) {
     var length = widget.lenght;
     const borderColor = Color.fromRGBO(114, 178, 238, 1);
-    const errorColor = Color.fromRGBO(255, 234, 238, 1);
+    final errorColor = mainColorScheme.error;
     const fillColor = Color.fromRGBO(222, 231, 240, .57);
     final defaultPinTheme = PinTheme(
       width: 48,
@@ -67,6 +70,7 @@ class _OtpFieldState extends State<OtpField> {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
+        onChanged: widget.onChanged,
       ),
     );
   }
