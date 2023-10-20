@@ -1,5 +1,3 @@
-import '../application/auth/login_cubit.dart';
-import 'otp_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/state_manager.dart';
 
+import '../application/auth/login_cubit.dart';
 import '../firebase_options.dart';
 import 'consts.dart';
+import 'otp_page.dart';
 import 'widgets/country_and_phone_number_field.dart';
 import 'widgets/logo.dart';
 import 'widgets/rounded_elevated_button.dart';
@@ -24,9 +24,8 @@ void main() async {
     await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
     await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-
   }
-    runApp(const MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

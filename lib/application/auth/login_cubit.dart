@@ -36,7 +36,6 @@ class LoginCubit extends Cubit<LoginState> {
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
         verificationFailed: (FirebaseAuthException error) {
-          // debugPrint(error.toString());
           debugPrint(error.message);
           if (error.code == 'unknown') {
             emit(LoginFailedConnection());

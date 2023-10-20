@@ -1,14 +1,14 @@
-import '../application/location_cubit/locations_cubit.dart';
-import 'gps_permission_page.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/state_manager.dart';
+
 import '../application/camera_bloc/camera_bloc.dart';
+import '../application/location_cubit/locations_cubit.dart';
 import 'consts.dart';
+import 'gps_permission_page.dart';
 import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';
-
-import 'package:camera/camera.dart';
 
 void main() => runApp(MyApp());
 

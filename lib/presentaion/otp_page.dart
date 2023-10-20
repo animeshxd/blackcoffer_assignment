@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:blackcoffer_assignment/application/auth/login_cubit.dart';
-import 'package:blackcoffer_assignment/presentaion/consts.dart';
-import 'package:blackcoffer_assignment/presentaion/signin_phone.dart';
+import '../application/auth/login_cubit.dart';
+import 'consts.dart';
+import 'signin_phone.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
