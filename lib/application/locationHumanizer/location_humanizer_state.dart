@@ -9,6 +9,7 @@ sealed class LocationHumanizerState extends Equatable {
 final class LocationHumanizerInitial extends LocationHumanizerState {}
 
 final class LocationHumanizerLoading extends LocationHumanizerState {}
+final class LocationHumanizerFailed extends LocationHumanizerState {}
 
 final class LocationHumanizerLoaded extends LocationHumanizerState {
   final String result;

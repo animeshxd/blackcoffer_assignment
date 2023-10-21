@@ -1,4 +1,6 @@
-import 'package:blackcoffer_assignment/presentaion/widgets/auth_aware.dart';
+import '../domain/entity/post.dart';
+import 'video_submit_page.dart';
+import 'widgets/auth_aware.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,8 +37,6 @@ enum VideoState { initial, resumed, paused }
 //   }
 // }
 
-
-
 class VideoRecordPage extends StatefulWidget {
   static const path = '/post';
 
@@ -56,6 +56,18 @@ class _VideoRecordPageState extends State<VideoRecordPage>
   void onRecordClicked() => cameraBloc?.add(ToggleVideoRecorder());
 
   void onSwitchCameraClicked() => cameraBloc?.add(const SwitchCamera());
+
+  void goToPostPage({
+    required BuildContext context,
+    required XFile video,
+    required XFile thumbnail,
+    required Position location,
+  }) {
+    context.replace(
+      VideoSubmitPage.path,
+      extra: Post(location: location, video: video, thumbnail: thumbnail),
+    );
+  }
 
   Future<Position?> goToGPSPermissionPage(BuildContext context) =>
       context.push<Position>(GPSPermissionPage.path);
@@ -109,7 +121,8 @@ class _VideoRecordPageState extends State<VideoRecordPage>
               );
             }
             return BlocConsumer<CameraBloc, CameraState>(
-              listener: (context, state) {
+              listener: (context, state) async {
+                var messenger = ScaffoldMessenger.maybeOf(context);
                 if (state is CameraInitializationFailed) {
                   videoState.value = VideoState.initial;
                   return;
@@ -127,7 +140,23 @@ class _VideoRecordPageState extends State<VideoRecordPage>
                 }
 
                 if (state is VideoRecorderStopped) {
-                  debugPrint('stopped');
+                  var location =
+                      currentPosition ?? (await goToGPSPermissionPage(context));
+                  if (location == null) {
+                    messenger?.showSnackBar(const SnackBar(
+                      content: Text(
+                        'unable to provide service without location',
+                      ),
+                    ));
+                    return;
+                  }
+                  if (!context.mounted) return;
+                  goToPostPage(
+                    context: context,
+                    video: state.video,
+                    thumbnail: state.thumbnail,
+                    location: location,
+                  );
                   return;
                 }
 

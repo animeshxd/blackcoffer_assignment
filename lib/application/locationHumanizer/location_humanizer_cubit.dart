@@ -1,7 +1,8 @@
-import 'package:blackcoffer_assignment/repository/reverse_geocode_client.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+
+import '../../repository/reverse_geocode_client.dart';
 
 part 'location_humanizer_state.dart';
 
@@ -12,8 +13,13 @@ class LocationHumanizerCubit extends Cubit<LocationHumanizerState> {
 
   void invoke(Position position) async {
     emit(LocationHumanizerLoading());
-    var result = await client.postionReverse(XPosition.fromPosition(position));
-    
-    emit(LocationHumanizerLoaded(result: result));
+
+    try {
+      var result =
+          await client.postionReverse(XPosition.fromPosition(position));
+      emit(LocationHumanizerLoaded(result: result));
+    } catch (_) {
+      return emit(LocationHumanizerFailed());
+    }
   }
 }

@@ -50,6 +50,7 @@ class GPSPermissionPage extends StatelessWidget {
             if (state is LocationGetSuccess) {
               Navigator.of(context).pop(state.position);
             }
+            if (state is LocationGetSuccess) return;
             var snackbarContent = switch (state) {
               LocationPermanentlyDisabled() => 'Unable to determine location',
               LocationAskPermission() => 'Please Allow GPS Permission',
