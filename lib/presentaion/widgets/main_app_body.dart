@@ -1,3 +1,4 @@
+import 'package:blackcoffer_assignment/presentaion/home_page.dart';
 import 'package:blackcoffer_assignment/presentaion/video_record_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +25,7 @@ class MainAppBody extends StatelessWidget {
       ),
       body: body,
       bottomNavigationBar: AppButtomNavigationBar(
-        onExploreClicked: () {},
+        onExploreClicked: () => onExploreClicked(context),
         onVideoAddClicked: () => onVideoAddClicked(context),
       ),
       floatingActionButton: floatingActionButton,
@@ -34,4 +35,5 @@ class MainAppBody extends StatelessWidget {
 
   void onVideoAddClicked(BuildContext context) =>
       context.replace(VideoRecordPage.path);
+  void onExploreClicked(BuildContext context) => context.replace(HomePage.path);
 }
