@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../application/locationHumanizer/location_humanizer_cubit.dart';
+import '../application/location_humanizer/location_humanizer_cubit.dart';
 import '../domain/entity/post.dart';
 import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';

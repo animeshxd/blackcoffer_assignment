@@ -1,8 +1,3 @@
-import 'package:blackcoffer_assignment/application/locationHumanizer/location_humanizer_cubit.dart';
-import 'package:blackcoffer_assignment/repository/reverse_geocode_client.dart';
-
-import 'application/camera_bloc/camera_bloc.dart';
-import 'application/location_cubit/locations_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,9 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'application/account/account_cubit.dart';
 import 'application/auth/login_cubit.dart';
+import 'application/camera_bloc/camera_bloc.dart';
+import 'application/location_cubit/locations_cubit.dart';
+import 'application/location_humanizer/location_humanizer_cubit.dart';
 import 'firebase_options.dart';
 import 'presentaion/consts.dart';
 import 'presentaion/routes/routes.dart';
+import 'repository/reverse_geocode_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
