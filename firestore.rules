@@ -15,7 +15,9 @@ service cloud.firestore {
       allow get: if true;
     }
 
-   
+    match /posts/{postId} {
+      allow create: if request.auth.uid == request.resource.data.uid
+    }
   }
   
 }

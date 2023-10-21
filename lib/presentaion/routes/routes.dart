@@ -1,14 +1,14 @@
-import 'package:blackcoffer_assignment/domain/entity/post.dart';
-import 'package:blackcoffer_assignment/presentaion/gps_permission_page.dart';
-import 'package:blackcoffer_assignment/presentaion/video_record_page.dart';
-import 'package:blackcoffer_assignment/presentaion/video_submit_page.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../application/auth/login_cubit.dart';
+import '../../domain/entity/post/post.dart';
 import '../create_profile_page.dart';
+import '../gps_permission_page.dart';
 import '../home_page.dart';
 import '../otp_page.dart';
 import '../signin_phone.dart';
-import 'package:go_router/go_router.dart';
+import '../video_record_page.dart';
+import '../video_submit_page.dart';
 
 final routes = GoRouter(initialLocation: '/login', routes: [
   GoRoute(

@@ -1,6 +1,3 @@
-import '../domain/entity/post.dart';
-import 'video_submit_page.dart';
-import 'widgets/auth_aware.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,8 +7,11 @@ import 'package:go_router/go_router.dart';
 
 import '../application/camera_bloc/camera_bloc.dart';
 import '../application/location_cubit/locations_cubit.dart';
+import '../domain/entity/post/post.dart';
 import 'consts.dart';
 import 'gps_permission_page.dart';
+import 'video_submit_page.dart';
+import 'widgets/auth_aware.dart';
 import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';
 

@@ -1,3 +1,4 @@
+import 'package:blackcoffer_assignment/application/post/post_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -47,6 +48,13 @@ class MainApp extends StatelessWidget {
         ),
         BlocProvider(create: (context) => CameraBloc()),
         BlocProvider(create: (context) => LocationsCubit()),
+        BlocProvider(
+          create: (context) => PostCubit(
+            storage: FirebaseStorage.instance,
+            auth: FirebaseAuth.instance,
+            firestore: FirebaseFirestore.instance,
+          ),
+        ),
         BlocProvider(
           create: (context) => LocationHumanizerCubit(ReverseGeocodeClient()),
         )

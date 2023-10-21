@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
 class VideoPostedSuccesfullPage extends StatelessWidget {
   const VideoPostedSuccesfullPage({
     super.key,
-  });
-
+  }); 
+  
   @override
   Widget build(BuildContext context) {
     return const MainAppBody(

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../application/location_humanizer/location_humanizer_cubit.dart';
-import '../domain/entity/post.dart';
+import '../application/post/post_cubit.dart';
+import '../domain/entity/post/post.dart';
 import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';
 
@@ -67,70 +68,99 @@ class _VideoSubmitPageState extends State<VideoSubmitPage> {
           if (state is LocationHumanizerLoaded) {
             locationEditingController.text = state.result;
           }
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  FutureBuilder<Uint8List>(
-                    future: widget.post.thumbnail.readAsBytes(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData || snapshot.hasError) {
-                        return Container(height: 170, color: Colors.black);
-                      }
-                      return Container(
-                        height: 170,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: MemoryImage(snapshot.data!),
-                            fit: BoxFit.cover,
-                          ),
+          return BlocConsumer<PostCubit, PostState>(
+            listener: (context, state) {
+              final messenger = ScaffoldMessenger.of(context);
+              messenger.clearSnackBars();
+              if (state is PostSubmitFailed) {
+                messenger.showSnackBar(const SnackBar(
+                  content: Text('Failed to upload post'),
+                ));
+              }
+              if (state is PostSubmitSuccessful) {
+                messenger.showSnackBar(const SnackBar(
+                  content: Text('Submit Success'),
+                ));
+              }
+            },
+            builder: (context, state) {
+              if (state is PostLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      FutureBuilder<Uint8List>(
+                        future: widget.post.thumbnail.readAsBytes(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData || snapshot.hasError) {
+                            return Container(height: 170, color: Colors.black);
+                          }
+                          return Container(
+                            height: 170,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: MemoryImage(snapshot.data!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: titleEditingController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Title',
+                          counterText: '',
                         ),
-                      );
-                    },
+                        maxLength: 5,
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: locationEditingController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Location',
+                        ),
+                        enabled: false,
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: categoryEditingController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Category',
+                          counterText: '',
+                        ),
+                        maxLength: 5,
+                      ),
+                      const SizedBox(height: 10),
+                      RoundedElevatedTextButton(
+                        text: 'Post',
+                        onPressed: onPostVideoRequested,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: titleEditingController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Title',
-                      counterText: '',
-                    ),
-                    maxLength: 5,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: locationEditingController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Location',
-                    ),
-                    enabled: false,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: categoryEditingController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Category',
-                      counterText: '',
-                    ),
-                    maxLength: 5,
-                  ),
-                  const SizedBox(height: 10),
-                  RoundedElevatedTextButton(
-                    text: 'Post',
-                    onPressed: onPostVideoRequested,
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  void onPostVideoRequested() {}
+  void onPostVideoRequested() {
+    var post = widget.post.copyWith(
+      title: titleEditingController.text,
+      hLocation: locationEditingController.text,
+      category: categoryEditingController.text,
+    );
+    context.read<PostCubit>().submitPost(post);
+  }
 }
