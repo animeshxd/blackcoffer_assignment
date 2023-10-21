@@ -78,8 +78,8 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     on<StopVideoRecorder>((event, emit) async {
       if (cameraController?.value.isRecordingVideo == false) return;
       try {
-        var thumbnail = await cameraController?.takePicture();
         var video = await cameraController?.stopVideoRecording();
+        var thumbnail = await cameraController?.takePicture();
         if (video == null || thumbnail == null) return;
         emit(VideoRecorderStopped(video: video, thumbnail: thumbnail));
       } on CameraException catch (_) {}
