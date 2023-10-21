@@ -1,3 +1,5 @@
+import '../application/camera/camera_bloc.dart';
+import '../application/location/locations_cubit.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,8 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/state_manager.dart';
 import 'package:go_router/go_router.dart';
 
-import '../application/camera_bloc/camera_bloc.dart';
-import '../application/location_cubit/locations_cubit.dart';
+
 import '../domain/entity/post/post.dart';
 import 'consts.dart';
 import 'gps_permission_page.dart';

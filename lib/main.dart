@@ -1,4 +1,3 @@
-import 'package:blackcoffer_assignment/application/post/post_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,9 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'application/account/account_cubit.dart';
 import 'application/auth/login_cubit.dart';
-import 'application/camera_bloc/camera_bloc.dart';
-import 'application/location_cubit/locations_cubit.dart';
+import 'application/camera/camera_bloc.dart';
+import 'application/location/locations_cubit.dart';
 import 'application/location_humanizer/location_humanizer_cubit.dart';
+import 'application/post/post_cubit.dart';
 import 'firebase_options.dart';
 import 'presentaion/consts.dart';
 import 'presentaion/routes/routes.dart';
