@@ -19,10 +19,10 @@ class MyApp extends StatelessWidget {
 }
 
 class VideoPostedSuccesfullPage extends StatelessWidget {
-  const VideoPostedSuccesfullPage({
-    super.key,
-  }); 
-  
+  const VideoPostedSuccesfullPage({super.key});
+
+  static const path = '/post_success';
+
   @override
   Widget build(BuildContext context) {
     return const MainAppBody(

@@ -7,6 +7,7 @@ import '../gps_permission_page.dart';
 import '../home_page.dart';
 import '../otp_page.dart';
 import '../signin_phone.dart';
+import '../video_posted_succesfully.dart';
 import '../video_record_page.dart';
 import '../video_submit_page.dart';
 
@@ -47,5 +48,9 @@ final routes = GoRouter(initialLocation: '/login', routes: [
   GoRoute(
     path: VideoSubmitPage.path,
     builder: (context, state) => VideoSubmitPage(post: state.extra as Post),
+  ),
+  GoRoute(
+    path: VideoPostedSuccesfullPage.path,
+    builder: (context, state) => const VideoPostedSuccesfullPage(),
   ),
 ]);

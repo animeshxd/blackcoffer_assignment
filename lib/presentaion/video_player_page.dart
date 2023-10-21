@@ -108,12 +108,12 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
 class VideoInfo extends StatelessWidget {
   const VideoInfo({
-    Key? key,
+    super.key,
     required this.category,
     required this.userFullName,
     required this.relativeTime,
     required this.videoTitle,
-  }) : super(key: key);
+  });
   final String videoTitle;
   final String relativeTime;
   final String category;
