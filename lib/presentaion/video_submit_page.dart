@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'video_posted_succesfully.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../application/location_humanizer/location_humanizer_cubit.dart';
 import '../application/post/post_cubit.dart';
 import '../domain/entity/post/post.dart';
+import 'video_posted_succesfully.dart';
 import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';
 
@@ -80,9 +80,6 @@ class _VideoSubmitPageState extends State<VideoSubmitPage> {
                 ));
               }
               if (state is PostSubmitSuccessful) {
-                // messenger.showSnackBar(const SnackBar(
-                //   content: Text('Submit Success'),
-                // ));
                 goToPostSuccessfulPage(context);
               }
             },

@@ -1,5 +1,3 @@
-import '../application/camera/camera_bloc.dart';
-import '../application/location/locations_cubit.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/state_manager.dart';
 import 'package:go_router/go_router.dart';
 
-
+import '../application/camera/camera_bloc.dart';
+import '../application/location/locations_cubit.dart';
 import '../domain/entity/post/post.dart';
 import 'consts.dart';
 import 'gps_permission_page.dart';
@@ -177,7 +176,7 @@ class _VideoRecordPageState extends State<VideoRecordPage>
                   );
                 }
                 if (state is CameraFound) {
-                  var camHeight = viewSize.height * .65;
+                  var camHeight = viewSize.height * .60;
                   return SizedBox(
                     height: camHeight,
                     child: Stack(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../consts.dart';
 
 class HomeScreenAppBar extends AppBar {
@@ -25,7 +26,7 @@ class HomeScreenAppBar extends AppBar {
 class SearchBarWithFilter extends PreferredSize {
   SearchBarWithFilter({
     super.key,
-    required super.preferredSize,
+    super.preferredSize = const Size(double.infinity, 45),
   }) : super(
           child: Padding(
             padding: const EdgeInsets.all(8.0),

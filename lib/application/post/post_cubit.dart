@@ -79,8 +79,8 @@ class PostCubit extends Cubit<PostState> {
   }
 
   /// Return [ListPostSuccess], [ListPostFailed], [PostLoading]
-  void getOwnedPosts() async {
-    final uid = auth.currentUser!.uid;
+  void getPosts([String? useruid]) async {
+    final uid = useruid ?? auth.currentUser!.uid;
     final coll = firestore.collection('posts');
 
     try {

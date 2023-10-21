@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
+import '../core/utils.dart';
+import '../domain/entity/post/firebase_post.dart';
 import 'consts.dart';
+import 'home_page.dart';
+import 'video_record_page.dart';
 import 'widgets/app_buttom_navigation_bar.dart';
 import 'widgets/home_screen_app_bar.dart';
 
-void main() => runApp(const MyApp());
+// void main() => runApp(const MyApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Material App',
-      theme: mainThemeData,
-      home: const VideoPlayerPage(),
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Material App',
+//       theme: mainThemeData,
+//       home: const VideoPlayerPage(),
+//     );
+//   }
+// }
 
 class VideoPlayerPage extends StatefulWidget {
   const VideoPlayerPage({
     super.key,
+    required this.post,
   });
-
+  final FPost post;
+  static const path = '/view_post';
   @override
   State<VideoPlayerPage> createState() => _VideoPlayerPageState();
 }
@@ -52,11 +59,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             return CustomScrollView(
               slivers: [
                 SliverAppBar(
+                  elevation: 0,
                   title: const Text('Flyin'),
                   pinned: true,
-                  bottom: SearchBarWithFilter(
-                    preferredSize: const Size(150, 20),
-                  ),
+                  bottom: SearchBarWithFilter(),
                   actions: [
                     IconButton(
                       onPressed: _onNotificationActionClicked,
@@ -74,12 +80,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                 ),
                 SliverList(
                   delegate: SliverChildListDelegate([
-                    const VideoInfo(
-                      category: 'Sports',
-                      userFullName: 'A User',
-                      relativeTime: '1 days ago',
-                      videoTitle: 'Title 1',
-                    ),
+                    VideoInfo(post: widget.post),
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -97,35 +98,34 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             );
           }),
       bottomNavigationBar: AppButtomNavigationBar(
-        onExploreClicked: () {},
-        onVideoAddClicked: () {},
+        onExploreClicked: onExploreClicked,
+        onVideoAddClicked: onVideoAddClicked,
       ),
     );
+  }
+
+  void onVideoAddClicked() {
+    context.replace(VideoRecordPage.path);
+  }
+
+  void onExploreClicked() {
+    context.replace(HomePage.path);
   }
 
   void _onNotificationActionClicked() {}
 }
 
 class VideoInfo extends StatelessWidget {
-  const VideoInfo({
-    super.key,
-    required this.category,
-    required this.userFullName,
-    required this.relativeTime,
-    required this.videoTitle,
-  });
-  final String videoTitle;
-  final String relativeTime;
-  final String category;
-  final String userFullName;
+  const VideoInfo({super.key, required this.post});
 
+  final FPost post;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const SizedBox(height: 10),
         Text(
-          videoTitle,
+          post.title,
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -157,16 +157,16 @@ class VideoInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const Text('1 views'),
-            Text(relativeTime),
-            Text(category),
+            Text(formatDateOfCreatedAt(post.createdAt)),
+            Text(post.category),
           ],
         ),
         const SizedBox(height: 5),
         ListTile(
           leading: const CircleAvatar(),
-          title: Text(userFullName),
+          title: Text(post.username),
           trailing: TextButton(
-            onPressed: onViewAllVideoRequested,
+            onPressed: () => onViewAllVideoRequested(context),
             child: const Text('View all video'),
           ),
         ),
@@ -174,7 +174,12 @@ class VideoInfo extends StatelessWidget {
     );
   }
 
-  void onViewAllVideoRequested() {}
+  void onViewAllVideoRequested(BuildContext context) {
+    context.push(
+      HomePage.path,
+      extra: HomePageParams(isLibrary: true, uid: post.uid),
+    );
+  }
 }
 
 class MySliverPersistentVideoPlayer extends SliverPersistentHeaderDelegate {

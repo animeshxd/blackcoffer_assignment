@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../application/post/post_cubit.dart';
 import '../core/utils.dart';
+import '../domain/entity/post/firebase_post.dart';
 import 'consts.dart';
-import 'video_record_page.dart';
-import 'widgets/app_buttom_navigation_bar.dart';
+import 'video_player_page.dart';
 import 'widgets/auth_aware.dart';
-import 'widgets/home_screen_app_bar.dart';
+import 'widgets/main_app_body.dart';
 
 void main() => runApp(const MyApp());
 
@@ -20,15 +20,29 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: mainThemeData,
-      home: const HomePage(),
+      home: const HomePage(
+        params: HomePageParams(),
+      ),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.isLibrary = false});
-  static const path = '/home';
+class HomePageParams {
   final bool isLibrary;
+  final String? uid;
+
+  const HomePageParams({this.isLibrary = false, this.uid});
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({
+    super.key,
+    this.params = const HomePageParams(),
+  });
+
+  /// extra HomePageParams
+  static const path = '/';
+  final HomePageParams params;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -37,27 +51,24 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (widget.isLibrary) {
-      context.read<PostCubit>().getOwnedPosts();
+    if (widget.params.isLibrary) {
+      getPosts(context);
     } else {
-      context.read<PostCubit>().getAllPosts();
+      getAllPosts(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: HomeScreenAppBar(
-        bottom: SearchBarWithFilter(
-          preferredSize: const Size(150, 20),
-        ),
-        onNotificationActionClicked: onViewNotificationClicked,
-      ),
+    return MainAppBody(
       body: AuthAware(
         child: RefreshIndicator(
           onRefresh: () async => refreshPostList(context),
           child: BlocBuilder<PostCubit, PostState>(
             builder: (context, state) {
+              if (state is PostLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
               if (state is ListPostFailed) {
                 return const Center(
                   child: Text(
@@ -76,40 +87,12 @@ class _HomePageState extends State<HomePage> {
                       location: post.hLocation,
                       username: post.username,
                       views: '1M',
-                      uploadedTime: formatDateOfLastMessage(post.createdAt),
+                      uploadedTime: formatDateOfCreatedAt(post.createdAt),
                       category: post.category,
                       thumbnail: post.thumbnail,
+                      onClick: () => onViewVideo(context, post),
                     );
                   },
-                  // children: const [
-                  //   VideoWidget(
-                  //     title: "Video TItle long long long  #1",
-                  //     location: "WB",
-                  //     username: '@username',
-                  //     views: '1M',
-                  //     uploadedTime: '4 minutes ago',
-                  //     category: "Festival",
-                  //     video: Colors.amber,
-                  //   ),
-                  //   VideoWidget(
-                  //     title: "Video TItle #2",
-                  //     location: "AP",
-                  //     username: '@username',
-                  //     views: '1M',
-                  //     uploadedTime: '4 minutes ago',
-                  //     category: "Politics",
-                  //     video: Colors.green,
-                  //   ),
-                  //   VideoWidget(
-                  //     title: "Video TItle #2",
-                  //     location: "DL",
-                  //     username: '@username',
-                  //     views: '1M',
-                  //     uploadedTime: '4 minutes ago',
-                  //     category: "Sports",
-                  //     video: Colors.indigo,
-                  //   ),
-                  // ],
                 );
               }
               return const Center(child: CircularProgressIndicator());
@@ -117,65 +100,40 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   onTap: (index) {
-      //     switch (index) {
-      //       case 0:
-      //         onExploreClicked();
-      //         debugPrint("Home");
-      //       case 1:
-      //         _addNewPost();
-      //         debugPrint("Add");
-      //       case 2:
-      //         onViewLibraryClicked();
-      //         debugPrint("Library");
-      //     }
-      //   },
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Explore',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.add),
-      //       label: 'Add',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.video_collection),
-      //       label: 'Library',
-      //     ),
-      //   ],
-      // ),
-      bottomNavigationBar: AppButtomNavigationBar(
-        onExploreClicked: null,
-        onVideoAddClicked: () => onAddNewPost(context),
-        onViewLibraryClicked: onViewLibraryClicked,
-      ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     context.read<PostCubit>().getOwnedPosts();
-      //   },
-      //   child: const Text(''),
-      // ),
+      onExploreClicked: onExploreClicked,
+      onViewLibraryClicked: onViewLibraryClicked,
     );
   }
 
   void onViewNotificationClicked() {}
 
-  void onAddNewPost(BuildContext context) => context.go(VideoRecordPage.path);
+  onViewVideo(BuildContext context, FPost post) =>
+      context.push(VideoPlayerPage.path, extra: post);
+
+  // void onAddNewPost(BuildContext context) => context.go(VideoRecordPage.path);
 
   void onViewLibraryClicked() {
-    context.read<PostCubit>().getOwnedPosts();
+    getPosts(context);
   }
 
-  void onExploreClicked() {}
+  void onExploreClicked() {
+    getAllPosts(context);
+  }
 
   void refreshPostList(BuildContext context) {
-    if (widget.isLibrary) {
-      context.read<PostCubit>().getOwnedPosts();
+    if (widget.params.isLibrary) {
+      getPosts(context);
     } else {
-      context.read<PostCubit>().getAllPosts();
+      getAllPosts(context);
     }
+  }
+
+  void getPosts(BuildContext context) {
+    context.read<PostCubit>().getPosts(widget.params.uid);
+  }
+
+  void getAllPosts(BuildContext context) {
+    context.read<PostCubit>().getAllPosts();
   }
 }
 
@@ -189,6 +147,7 @@ class VideoWidget extends StatelessWidget {
     required this.category,
     required this.location,
     required this.thumbnail,
+    required this.onClick,
   });
 
   final String title;
@@ -198,52 +157,56 @@ class VideoWidget extends StatelessWidget {
   final String uploadedTime;
   final String category;
   final String thumbnail;
+  final VoidCallback onClick;
 
   @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
 
-    return Card(
-      child: Column(
-        children: [
-          Container(
-            height: 170,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: NetworkImage(thumbnail), fit: BoxFit.cover),
-            ),
-          ),
-          ListTile(
-            leading: const CircleAvatar(),
-            titleAlignment: ListTileTitleAlignment.threeLine,
-            titleTextStyle: textTheme.titleSmall,
-            subtitleTextStyle: textTheme.bodySmall,
-            title: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              children: [
-                Text(title),
-                const Text(' '),
-                Text(location),
-              ],
-            ),
-            subtitle: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: "@$username\n",
-                    style: textTheme.bodySmall
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  TextSpan(text: "$views views"),
-                  const TextSpan(text: " • "),
-                  TextSpan(text: uploadedTime),
-                  const TextSpan(text: " • "),
-                  TextSpan(text: category),
-                ],
+    return InkWell(
+      onTap: onClick,
+      child: Card(
+        child: Column(
+          children: [
+            Container(
+              height: 170,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(thumbnail), fit: BoxFit.cover),
               ),
             ),
-          )
-        ],
+            ListTile(
+              leading: const CircleAvatar(),
+              titleAlignment: ListTileTitleAlignment.threeLine,
+              titleTextStyle: textTheme.titleSmall,
+              subtitleTextStyle: textTheme.bodySmall,
+              title: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  Text(title),
+                  const Text(' '),
+                  Text(location),
+                ],
+              ),
+              subtitle: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "@$username\n",
+                      style: textTheme.bodySmall
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    TextSpan(text: "$views views"),
+                    const TextSpan(text: " • "),
+                    TextSpan(text: uploadedTime),
+                    const TextSpan(text: " • "),
+                    TextSpan(text: category),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
