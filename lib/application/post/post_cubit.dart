@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entity/post/firebase_post.dart';
 import '../../domain/entity/post/post.dart';
+import '../account/account_cubit.dart';
 
 part 'post_state.dart';
 
@@ -17,11 +18,13 @@ class PostCubit extends Cubit<PostState> {
     required this.storage,
     required this.auth,
     required this.firestore,
+    required this.account,
   }) : super(PostInitial());
 
   final FirebaseStorage storage;
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
+  final AccountCubit account;
 
   /// Returns [PostLoading], [PostSubmitSuccessful], [PostSubmitFailed]
   void submitPost(Post post) async {
@@ -56,14 +59,15 @@ class PostCubit extends Cubit<PostState> {
     }
 
     final data = FPost(
-      location: GeoPoint(post.location.latitude, post.location.longitude),
-      hLocation: post.hLocation!,
-      video: await videoRef.getDownloadURL(),
-      thumbnail: await thumbnailref.getDownloadURL(),
-      title: post.title!,
-      category: post.category!,
-      uid: uid,
-    );
+        username: account.currentUser!.username,
+        location: GeoPoint(post.location.latitude, post.location.longitude),
+        hLocation: post.hLocation!,
+        video: await videoRef.getDownloadURL(),
+        thumbnail: await thumbnailref.getDownloadURL(),
+        title: post.title!,
+        category: post.category!,
+        uid: uid,
+        createdAt: Timestamp.now());
 
     try {
       await doc.set(data.toMap());
@@ -71,6 +75,32 @@ class PostCubit extends Cubit<PostState> {
     } on Exception catch (e) {
       debugPrint(e.toString());
       emit(PostSubmitFailed());
+    }
+  }
+
+  /// Return [ListPostSuccess], [ListPostFailed], [PostLoading]
+  void getOwnedPosts() async {
+    final uid = auth.currentUser!.uid;
+    final coll = firestore.collection('posts');
+
+    try {
+      final posts = await coll.where('uid', isEqualTo: uid).limit(10).get();
+      var fPosts = posts.docs.map((e) => FPost.fromMap(e.data())).toList();
+      return emit(ListPostSuccess(posts: fPosts));
+    } on Exception catch (_) {
+      return emit(ListPostFailed());
+    }
+  }
+
+  /// Return [ListPostSuccess], [ListPostFailed], [PostLoading]
+  void getAllPosts() async {
+    final coll = firestore.collection('posts');
+    try {
+      final posts = await coll.limit(10).get();
+      var fPosts = posts.docs.map((e) => FPost.fromMap(e.data())).toList();
+      return emit(ListPostSuccess(posts: fPosts));
+    } on Exception catch (_) {
+      return emit(const ListPostSuccess());
     }
   }
 }

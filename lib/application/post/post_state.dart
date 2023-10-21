@@ -23,6 +23,10 @@ final class PostListAllSuccess extends PostState {}
 
 final class PostListAllFailed extends PostState {}
 
-final class PostListUserSuccess extends PostState {}
+final class ListPostSuccess extends PostState {
+  final List<FPost> posts;
 
-final class PostListUserFailed extends PostState {}
+  const ListPostSuccess({this.posts = const []});
+}
+
+final class ListPostFailed extends PostState {}

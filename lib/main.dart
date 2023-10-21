@@ -53,6 +53,7 @@ class MainApp extends StatelessWidget {
             storage: FirebaseStorage.instance,
             auth: FirebaseAuth.instance,
             firestore: FirebaseFirestore.instance,
+            account: context.read(),
           ),
         ),
         BlocProvider(

@@ -12,6 +12,8 @@ class AccountCubit extends Cubit<AccountState> {
   final FirebaseFirestore firestore;
   late final users = firestore.collection('users');
   late final usernames = firestore.collection('usernames');
+
+  XUser? currentUser;
   void createAccount(XUser user) async {
     emit(AccountStateLoading());
 
@@ -22,6 +24,7 @@ class AccountCubit extends Cubit<AccountState> {
     try {
       await users.doc(user.uid).set(user.toMap(), SetOptions(merge: false));
       await usernames.doc(user.username).set({});
+      currentUser = user;
       return emit(AccountCreated());
     } on Exception catch (e) {
       debugPrint(e.toString());
@@ -35,6 +38,7 @@ class AccountCubit extends Cubit<AccountState> {
     try {
       final user = await users.doc(uid).get();
       if (user.exists) {
+        currentUser = XUser.fromMap(user.data()!);
         return emit(AccountExists(uid: uid));
       }
     } catch (_) {}
