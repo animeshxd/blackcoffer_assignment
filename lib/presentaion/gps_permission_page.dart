@@ -25,9 +25,8 @@ class MyApp extends StatelessWidget {
 }
 
 class GPSPermissionPage extends StatelessWidget {
-  const GPSPermissionPage({
-    super.key,
-  });
+  const GPSPermissionPage({super.key});
+  static const path = '/gps';
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +48,6 @@ class GPSPermissionPage extends StatelessWidget {
           listener: (context, state) {
             var messenger = ScaffoldMessenger.maybeOf(context);
             if (state is LocationGetSuccess) {
-              //TODO:
               Navigator.of(context).pop(state.position);
             }
             var snackbarContent = switch (state) {

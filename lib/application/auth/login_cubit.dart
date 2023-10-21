@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
@@ -8,26 +9,48 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit(this.firebaseAuth) : super(LoginInitial()) {
-    firebaseAuth.userChanges().listen((event) {
-      if (event == null) {
-        return emit(LoginRequired());
-      }
-      emit(LoginSuccessfull(user: event));
-    });
-  }
+  LoginCubit(this.firebaseAuth) : super(LoginInitial());
 
   User? currentUser;
 
   final FirebaseAuth firebaseAuth;
+  StreamSubscription? subscription;
+
+  @override
+  Future<void> close() {
+    subscription?.cancel();
+    return super.close();
+  }
+
+  void initilize() {
+    try {
+      subscription = firebaseAuth.userChanges().listen((user) async {
+        if (user == null) {
+          return emit(LoginRequired());
+        }
+        try {
+          await user.reload();
+          emit(LoginSuccessfull(user: user));
+        } on FirebaseAuthException catch (_) {
+          
+          await firebaseAuth.signOut().onError((error, stackTrace) => null);
+          return emit(LoginRequired());
+        }
+      });
+      emit(LoginInitialized());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   void signIn(String phoneNumber) async {
     emit(const LoginLoading());
     if (kIsWeb) {
       var confirmation = await firebaseAuth.signInWithPhoneNumber(phoneNumber);
       return emit(LoginOTPRequired(XConfirmationResult.web(
-        confirmation,
-        firebaseAuth,
+        confirmationResult: confirmation,
+        auth: firebaseAuth,
+        phoneNumber: phoneNumber,
       )));
     }
     if (Platform.isAndroid || Platform.isIOS) {
@@ -43,8 +66,9 @@ class LoginCubit extends Cubit<LoginState> {
         },
         codeSent: (verificationId, forceResendingToken) {
           emit(LoginOTPRequired(XConfirmationResult.iosOrAndroid(
-            verificationId,
-            firebaseAuth,
+            auth: firebaseAuth,
+            phoneNumber: phoneNumber,
+            verificationId: verificationId,
           )));
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
@@ -69,12 +93,24 @@ class LoginCubit extends Cubit<LoginState> {
 class XConfirmationResult {
   ConfirmationResult? confirmationResult;
   String? verificationId;
+  final String phoneNumber;
 
   final FirebaseAuth auth;
 
-  XConfirmationResult.web(this.confirmationResult, this.auth);
-  XConfirmationResult.none(this.auth);
-  XConfirmationResult.iosOrAndroid(this.verificationId, this.auth);
+  XConfirmationResult.web({
+    required this.confirmationResult,
+    required this.auth,
+    required this.phoneNumber,
+  });
+  XConfirmationResult.none({
+    required this.auth,
+    required this.phoneNumber,
+  });
+  XConfirmationResult.iosOrAndroid({
+    required this.verificationId,
+    required this.auth,
+    required this.phoneNumber,
+  });
 
   Future<UserCredential> verify(String code) async {
     if (kIsWeb) {

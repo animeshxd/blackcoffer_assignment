@@ -1,12 +1,16 @@
 import 'dart:async';
 
-import '../application/auth/login_cubit.dart';
-import 'consts.dart';
-import 'signin_phone.dart';
+import 'package:blackcoffer_assignment/presentaion/widgets/auth_aware.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
+import 'package:go_router/go_router.dart';
+
+import '../application/auth/login_cubit.dart';
+import 'consts.dart';
+import 'home_page.dart';
+import 'signin_phone.dart';
 import 'widgets/logo.dart';
 import 'widgets/otp_field.dart';
 import 'widgets/rounded_elevated_button.dart';
@@ -33,11 +37,12 @@ class OTPPage extends StatefulWidget {
   const OTPPage({
     super.key,
     required this.confirmationResult,
-    required this.phoneNumber,
   });
 
+  /// XConfirmationResult as extra
+  static const path = '/otp';
+
   final XConfirmationResult confirmationResult;
-  final String phoneNumber;
 
   @override
   State<OTPPage> createState() => _OTPPageState();
@@ -59,100 +64,82 @@ class _OTPPageState extends State<OTPPage> {
     var viewSize = MediaQuery.of(context).size;
     var vh = viewSize.height;
     return SafeArea(
-      child: BlocConsumer<LoginCubit, LoginState>(
-        listener: (context, state) {
-          var messenger = ScaffoldMessenger.maybeOf(context);
-          switch (state) {
-            case LoginOTPRequired(confirmationResult: var cResult):
-              confirmationResult = cResult;
-              break;
-            case OtpVerificationFailed(confirmationResult: var cResult):
-              confirmationResult = cResult;
-              break;
-            case LoginFailedConnection():
-              messenger?.showSnackBar(const SnackBar(
-                content: Text('Connection Failed! Please check connecton'),
-              ));
-            case LoginSuccessfull():
-              messenger?.showSnackBar(const SnackBar(
-                content: Text('Login success'),
-              ));
-            case LoginRequired():
-              _editPhoneNumber(context);
-            default:
-          }
-        },
-        builder: (context, state) {
-          if (state is OtpVerificationFailed) {
-            errorText.value = 'Invalid code';
-          } else {
-            errorText.value = null;
-          }
-          return Scaffold(
-            floatingActionButton: FloatingActionButton(
-              onPressed: () => _editPhoneNumber(context),
-              mini: true,
-              child: const Icon(Icons.edit),
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      height: vh * .28,
-                      child: const Center(child: Logo()),
-                    ),
-                    const Text("Enter OTP"),
-                    const SizedBox(height: 12),
-                    OtpField(
-                      controller: otpController,
-                      lenght: 6,
-                    ),
-                    if (errorText.value != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10, top: 5),
-                        child: Text(
-                          errorText.value!,
-                          style: TextStyle(color: mainColorScheme.error),
-                        ),
+      child: AuthAware(
+        child: BlocConsumer<LoginCubit, LoginState>(
+          listener: (context, state) {
+            switch (state) {
+              case LoginOTPRequired(confirmationResult: var cResult):
+                confirmationResult = cResult;
+                break;
+              case OtpVerificationFailed(confirmationResult: var cResult):
+                confirmationResult = cResult;
+                break;
+              default:
+            }
+          },
+          builder: (context, state) {
+            if (state is OtpVerificationFailed) {
+              errorText.value = 'Invalid code';
+            } else {
+              errorText.value = null;
+            }
+            return Scaffold(
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => goToSignInPage(context),
+                mini: true,
+                child: const Icon(Icons.edit),
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: vh * .28,
+                        child: const Center(child: Logo()),
                       ),
-                    const SizedBox(height: 12),
-                    OTPResendButtonTimer(
-                      duration: 60,
-                      resetHandler: true.obs,
-                      onResendClicked: onResendClicked,
-                    ),
-                    SizedBox(
-                      height: vh * .15,
-                      child: Align(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: RoundedElevatedTextButton(
-                            onPressed: () => _verifyOTP(context),
-                            text: 'Get Started',
+                      const Text("Enter OTP"),
+                      const SizedBox(height: 12),
+                      OtpField(
+                        controller: otpController,
+                        lenght: 6,
+                      ),
+                      if (errorText.value != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, top: 5),
+                          child: Text(
+                            errorText.value!,
+                            style: TextStyle(color: mainColorScheme.error),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+                      OTPResendButtonTimer(
+                        duration: 60,
+                        resetHandler: true.obs,
+                        onResendClicked: onResendClicked,
+                      ),
+                      SizedBox(
+                        height: vh * .15,
+                        child: Align(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: RoundedElevatedTextButton(
+                              onPressed: () => _verifyOTP(context),
+                              text: 'Get Started',
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
-  }
-
-  void _editPhoneNumber(BuildContext context) {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => BlocProvider.value(
-        value: loginCubit,
-        child: const SignInPage(force: true),
-      ),
-    ));
   }
 
   void _verifyOTP(BuildContext context) => context
@@ -161,8 +148,12 @@ class _OTPPageState extends State<OTPPage> {
 
   void onResendClicked() {
     otpController.clear();
-    context.read<LoginCubit>().signIn(widget.phoneNumber);
+    context.read<LoginCubit>().signIn(widget.confirmationResult.phoneNumber);
   }
+
+  void goToHomePage(BuildContext context) => context.replace(HomePage.path);
+  void goToSignInPage(BuildContext context) =>
+      context.replace(SignInPage.pathWithForced);
 }
 
 class OTPResendButtonTimer extends StatefulWidget {

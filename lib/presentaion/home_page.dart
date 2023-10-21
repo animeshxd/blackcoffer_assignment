@@ -1,7 +1,10 @@
+import 'package:blackcoffer_assignment/presentaion/video_record_page.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'consts.dart';
 import 'widgets/app_buttom_navigation_bar.dart';
+import 'widgets/auth_aware.dart';
 import 'widgets/home_screen_app_bar.dart';
 
 void main() => runApp(const MyApp());
@@ -20,10 +23,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({
-    super.key,
-  });
-
+  const HomePage({super.key});
+  static const path = '/home';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,36 +34,38 @@ class HomePage extends StatelessWidget {
         ),
         onNotificationActionClicked: onViewNotificationClicked,
       ),
-      body: ListView(
-        children: const [
-          VideoWidget(
-            title: "Video TItle long long long  #1",
-            location: "WB",
-            username: '@username',
-            views: '1M',
-            uploadedTime: '4 minutes ago',
-            category: "Festival",
-            video: Colors.amber,
-          ),
-          VideoWidget(
-            title: "Video TItle #2",
-            location: "AP",
-            username: '@username',
-            views: '1M',
-            uploadedTime: '4 minutes ago',
-            category: "Politics",
-            video: Colors.green,
-          ),
-          VideoWidget(
-            title: "Video TItle #2",
-            location: "DL",
-            username: '@username',
-            views: '1M',
-            uploadedTime: '4 minutes ago',
-            category: "Sports",
-            video: Colors.indigo,
-          ),
-        ],
+      body: AuthAware(
+        child: ListView(
+          children: const [
+            VideoWidget(
+              title: "Video TItle long long long  #1",
+              location: "WB",
+              username: '@username',
+              views: '1M',
+              uploadedTime: '4 minutes ago',
+              category: "Festival",
+              video: Colors.amber,
+            ),
+            VideoWidget(
+              title: "Video TItle #2",
+              location: "AP",
+              username: '@username',
+              views: '1M',
+              uploadedTime: '4 minutes ago',
+              category: "Politics",
+              video: Colors.green,
+            ),
+            VideoWidget(
+              title: "Video TItle #2",
+              location: "DL",
+              username: '@username',
+              views: '1M',
+              uploadedTime: '4 minutes ago',
+              category: "Sports",
+              video: Colors.indigo,
+            ),
+          ],
+        ),
       ),
       // bottomNavigationBar: BottomNavigationBar(
       //   onTap: (index) {
@@ -94,22 +97,23 @@ class HomePage extends StatelessWidget {
       //   ],
       // ),
       bottomNavigationBar: AppButtomNavigationBar(
-        onExploreClicked: onExploreClicked,
-        onVideoAddClicked: onAddNewPost,
+        onExploreClicked: null,
+        onVideoAddClicked: () => onAddNewPost(context),
         onViewLibraryClicked: onViewLibraryClicked,
       ),
     );
   }
 
   void onViewNotificationClicked() {}
-  void onAddNewPost() {}
+  void onAddNewPost(BuildContext context) => context.go(VideoRecordPage.path);
+
   void onViewLibraryClicked() {}
   void onExploreClicked() {}
 }
 
 class VideoWidget extends StatelessWidget {
   const VideoWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.username,
     required this.views,
@@ -117,7 +121,7 @@ class VideoWidget extends StatelessWidget {
     required this.category,
     required this.location,
     required this.video,
-  }) : super(key: key);
+  });
 
   final String title;
   final String location;

@@ -8,6 +8,7 @@ sealed class LoginState extends Equatable {
 }
 
 final class LoginInitial extends LoginState {}
+final class LoginInitialized extends LoginState {}
 
 final class LoginLoading extends LoginState {
   const LoginLoading();

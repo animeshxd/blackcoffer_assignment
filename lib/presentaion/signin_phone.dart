@@ -7,10 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/state_manager.dart';
 
+import '../application/account/account_cubit.dart';
 import '../application/auth/login_cubit.dart';
 import '../firebase_options.dart';
 import 'consts.dart';
-import 'otp_page.dart';
+import 'widgets/auth_aware.dart';
 import 'widgets/country_and_phone_number_field.dart';
 import 'widgets/logo.dart';
 import 'widgets/rounded_elevated_button.dart';
@@ -33,8 +34,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LoginCubit(FirebaseAuth.instance),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => LoginCubit(FirebaseAuth.instance),
+        ),
+        BlocProvider(
+          create: (context) => AccountCubit(FirebaseFirestore.instance),
+        ),
+      ],
       child: MaterialApp(
         title: 'Material App',
         theme: ThemeData.from(colorScheme: mainColorScheme),
@@ -51,6 +59,10 @@ class SignInPage extends StatefulWidget {
   const SignInPage({super.key, this.force = false});
   final bool force;
 
+  /// Include fragment for `force=true` args
+  static const path = '/login';
+  static const pathWithForced = '/login#force';
+
   @override
   State<SignInPage> createState() => _SignInPageState();
 }
@@ -61,7 +73,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
     super.initState();
-    loginCubit = context.read();
+    loginCubit = context.read()..initilize();
   }
 
   final phoneNumberIsValid = false.obs;
@@ -71,58 +83,42 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     var viewSize = MediaQuery.of(context).size;
     var vh = viewSize.height;
-    return BlocConsumer<LoginCubit, LoginState>(
-      listener: (context, state) {
-        var messenger = ScaffoldMessenger.maybeOf(context);
-        switch (state) {
-          case LoginOTPRequired(confirmationResult: var confirmationResult):
-            if (force) return;
-            goToOtpPage(context, confirmationResult);
-            break;
-          case LoginFailedConnection():
-            messenger?.showSnackBar(const SnackBar(
-              content: Text('Connection Failed! Please check connecton'),
-            ));
-          default:
-        }
-      },
-      builder: (context, state) {
-        return SafeArea(
-          child: Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(25),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: vh * .28,
-                      child: const Center(child: Logo()),
+    return SafeArea(
+      child: Scaffold(
+        body: AuthAware(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: vh * .28,
+                    child: const Center(child: Logo()),
+                  ),
+                  CountryAndPhoneNumberField(
+                    country: 'IN',
+                    onValidated: onPhoneNumberValidated,
+                    onChanged: (value) => phoneNumberIsValid.value = false,
+                  ),
+                  SizedBox(
+                    height: vh * .1,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Obx(() {
+                        return RoundedElevatedTextButton(
+                          onPressed:
+                              phoneNumberIsValid.isFalse ? null : handleLogin,
+                          text: 'Next',
+                        );
+                      }),
                     ),
-                    CountryAndPhoneNumberField(
-                      country: 'IN',
-                      onValidated: onPhoneNumberValidated,
-                      onChanged: (value) => phoneNumberIsValid.value = false,
-                    ),
-                    SizedBox(
-                      height: vh * .1,
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Obx(() {
-                          return RoundedElevatedTextButton(
-                            onPressed:
-                                phoneNumberIsValid.isFalse ? null : handleLogin,
-                            text: 'Next',
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -134,16 +130,4 @@ class _SignInPageState extends State<SignInPage> {
 
   void handleLogin() => context.read<LoginCubit>().signIn(phoneNumber.value);
 
-  void goToOtpPage(
-      BuildContext context, XConfirmationResult confirmationResult) {
-    Navigator.maybeOf(context)?.pushReplacement(MaterialPageRoute(
-      builder: (_) => BlocProvider.value(
-        value: loginCubit,
-        child: OTPPage(
-          confirmationResult: confirmationResult,
-          phoneNumber: phoneNumber.value,
-        ),
-      ),
-    ));
-  }
 }
