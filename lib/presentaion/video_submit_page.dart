@@ -54,71 +54,78 @@ class _VideoSubmitPageState extends State<VideoSubmitPage> {
     return MainAppBody(
       body: BlocBuilder<LocationHumanizerCubit, LocationHumanizerState>(
         builder: (context, state) {
-          if (state is LocationHumanizerLoaded) {
-            locationEditingController.text = state.result;
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    FutureBuilder<Uint8List>(
-                      future: widget.post.thumbnail.readAsBytes(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData || snapshot.hasError) {
-                          return Container(height: 170, color: Colors.black);
-                        }
-                        return Container(
-                          height: 170,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: MemoryImage(snapshot.data!),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: titleEditingController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Title',
-                        counterText: '',
-                      ),
-                      maxLength: 5,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: locationEditingController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Location',
-                      ),
-                      enabled: false,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: categoryEditingController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Category',
-                        counterText: '',
-                      ),
-                      maxLength: 5,
-                    ),
-                    const SizedBox(height: 10),
-                    RoundedElevatedTextButton(
-                      text: 'Post',
-                      onPressed: onPostVideoRequested,
-                    ),
-                  ],
-                ),
-              ),
+          if (state is LocationHumanizerLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           }
-          return const Center(
-            child: CircularProgressIndicator(),
+          if (state is LocationHumanizerFailed) {
+            var location = widget.post.location;
+            // var result = 'lon: ${location.longitude}, lat: ${location.latitude}';
+            locationEditingController.text = location.toString();
+          }
+          if (state is LocationHumanizerLoaded) {
+            locationEditingController.text = state.result;
+          }
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  FutureBuilder<Uint8List>(
+                    future: widget.post.thumbnail.readAsBytes(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.hasError) {
+                        return Container(height: 170, color: Colors.black);
+                      }
+                      return Container(
+                        height: 170,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: MemoryImage(snapshot.data!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: titleEditingController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Title',
+                      counterText: '',
+                    ),
+                    maxLength: 5,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: locationEditingController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Location',
+                    ),
+                    enabled: false,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: categoryEditingController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Category',
+                      counterText: '',
+                    ),
+                    maxLength: 5,
+                  ),
+                  const SizedBox(height: 10),
+                  RoundedElevatedTextButton(
+                    text: 'Post',
+                    onPressed: onPostVideoRequested,
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
