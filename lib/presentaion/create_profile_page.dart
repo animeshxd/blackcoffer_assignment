@@ -6,7 +6,6 @@ import '../application/account/account_cubit.dart';
 import '../domain/entity/x_user.dart';
 import 'home_page.dart';
 import 'widgets/auth_aware.dart';
-import 'widgets/main_app_body.dart';
 import 'widgets/rounded_elevated_button.dart';
 
 // void main() async {
