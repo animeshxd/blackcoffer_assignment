@@ -118,7 +118,7 @@ class _VideoSubmitPageState extends State<VideoSubmitPage> {
                           labelText: 'Title',
                           counterText: '',
                         ),
-                        maxLength: 5,
+                        maxLength: 10,
                       ),
                       const SizedBox(height: 10),
                       TextField(
