@@ -52,61 +52,63 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MainAppBody(
-      body: AuthAware(
-        child: BlocConsumer<AccountCubit, AccountState>(
-          listener: (context, state) {
-            var messenger = ScaffoldMessenger.maybeOf(context);
-            messenger?.clearSnackBars();
-      
-            showSnackbar(String content) {
-              messenger?.showSnackBar(SnackBar(content: Text(content)));
-            }
-      
-            if (state is AccountUserNameExists) {
-              showSnackbar('username already exists');
-            }
-            if (state is AccountCreateFailed) {
-              showSnackbar('Failed to Create Account');
-            }
-            // if (state is AccountCreated) {
-            //   messenger?.showSnackBar(const SnackBar(
-            //     content: Text('Account Created'),
-            //   ));
-              
-            // }
-          },
-          builder: (context, state) {
-            if (state is AccountStateLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return Center(
-              child: SizedBox(
-                width: 300,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: usernameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'username',
+    return Scaffold(
+      body: SafeArea(
+        child: AuthAware(
+          child: BlocConsumer<AccountCubit, AccountState>(
+            listener: (context, state) {
+              var messenger = ScaffoldMessenger.maybeOf(context);
+              messenger?.clearSnackBars();
+        
+              showSnackbar(String content) {
+                messenger?.showSnackBar(SnackBar(content: Text(content)));
+              }
+        
+              if (state is AccountUserNameExists) {
+                showSnackbar('username already exists');
+              }
+              if (state is AccountCreateFailed) {
+                showSnackbar('Failed to Create Account');
+              }
+              // if (state is AccountCreated) {
+              //   messenger?.showSnackBar(const SnackBar(
+              //     content: Text('Account Created'),
+              //   ));
+                
+              // }
+            },
+            builder: (context, state) {
+              if (state is AccountStateLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return Center(
+                child: SizedBox(
+                  width: 300,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: usernameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'username',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: displayNameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Full Name',
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: displayNameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Full Name',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: SizedBox(
