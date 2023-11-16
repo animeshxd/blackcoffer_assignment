@@ -63,33 +63,33 @@ class _OTPPageState extends State<OTPPage> {
   Widget build(BuildContext context) {
     var viewSize = MediaQuery.of(context).size;
     var vh = viewSize.height;
-    return SafeArea(
-      child: AuthAware(
-        child: BlocConsumer<LoginCubit, LoginState>(
-          listener: (context, state) {
-            switch (state) {
-              case LoginOTPRequired(confirmationResult: var cResult):
-                confirmationResult = cResult;
-                break;
-              case OtpVerificationFailed(confirmationResult: var cResult):
-                confirmationResult = cResult;
-                break;
-              default:
-            }
-          },
-          builder: (context, state) {
-            if (state is OtpVerificationFailed) {
-              errorText.value = 'Invalid code';
-            } else {
-              errorText.value = null;
-            }
-            return Scaffold(
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => goToSignInPage(context),
-                mini: true,
-                child: const Icon(Icons.edit),
-              ),
-              body: SingleChildScrollView(
+    return AuthAware(
+      child: BlocConsumer<LoginCubit, LoginState>(
+        listener: (context, state) {
+          switch (state) {
+            case LoginOTPRequired(confirmationResult: var cResult):
+              confirmationResult = cResult;
+              break;
+            case OtpVerificationFailed(confirmationResult: var cResult):
+              confirmationResult = cResult;
+              break;
+            default:
+          }
+        },
+        builder: (context, state) {
+          if (state is OtpVerificationFailed) {
+            errorText.value = 'Invalid code';
+          } else {
+            errorText.value = null;
+          }
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => goToSignInPage(context),
+              mini: true,
+              child: const Icon(Icons.edit),
+            ),
+            body: SafeArea(
+              child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Column(
@@ -135,9 +135,9 @@ class _OTPPageState extends State<OTPPage> {
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

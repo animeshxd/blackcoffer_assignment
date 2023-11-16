@@ -33,7 +33,7 @@ class MainAppBody extends StatelessWidget {
         onNotificationActionClicked: () {},
         bottom: SearchBarWithFilter(),
       ),
-      body: body,
+      body: body == null? null : SafeArea(child: body!),
       bottomNavigationBar: AppButtomNavigationBar(
         onExploreClicked: disableoExploreClicked
             ? null

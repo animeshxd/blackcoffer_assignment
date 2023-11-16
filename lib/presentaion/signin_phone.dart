@@ -83,9 +83,9 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     var viewSize = MediaQuery.of(context).size;
     var vh = viewSize.height;
-    return SafeArea(
-      child: Scaffold(
-        body: AuthAware(
+    return Scaffold(
+      body: SafeArea(
+        child: AuthAware(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(25),
