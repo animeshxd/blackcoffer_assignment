@@ -107,4 +107,20 @@ class PostCubit extends Cubit<PostState> {
       return emit(const ListPostSuccess());
     }
   }
+
+  /// Return [ListPostSuccess], [ListPostFailed], [PostLoading]
+  void searchPosts(String query) async {
+    if (query.isEmpty) return getAllPosts();
+
+    final coll = firestore.collection('posts');
+    try {
+      final posts = await coll
+          .where("title", isGreaterThanOrEqualTo: query) //
+          .get();
+      var fPosts = posts.docs.map((e) => FPost.fromMap(e.data())).toList();
+      return emit(ListPostSuccess(posts: fPosts));
+    } on Exception catch (_) {
+      return emit(const ListPostSuccess());
+    }
+  }
 }
